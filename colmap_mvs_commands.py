@@ -35,6 +35,13 @@ from lib.run_cmd import run_cmd
 
 gpu_index = '-1'
 
+import os
+if 'COLMAP_MVS_FOR_TWO_IMAGES' in os.environ and not int(os.environ['COLMAP_MVS_FOR_TWO_IMAGES'])==0:
+    filter_min_num_consistent = 1
+else:
+    filter_min_num_consistent = 2
+
+
 
 def run_photometric_mvs(mvs_dir, window_radius, depth_range=None):
     cmd = 'colmap patch_match_stereo --workspace_path {} \
@@ -69,11 +76,11 @@ def run_consistency_check(mvs_dir, window_radius, depth_range=None):
                     --PatchMatchStereo.filter_min_triangulation_angle 4.99 \
                     --PatchMatchStereo.filter_min_ncc 0.1 \
                     --PatchMatchStereo.filter_geom_consistency_max_cost 1 \
-                    --PatchMatchStereo.filter_min_num_consistent 2 \
+                    --PatchMatchStereo.filter_min_num_consistent {} \
                     --PatchMatchStereo.gpu_index={} \
                     --PatchMatchStereo.num_samples 15 \
                     --PatchMatchStereo.num_iterations 1'.format(mvs_dir,
-                                                                window_radius, gpu_index)
+                                                                window_radius, filter_min_num_consistent, gpu_index)
     if depth_range is not None:
         depth_min, depth_max = depth_range
         other_opts = '--PatchMatchStereo.depth_min {} \

@@ -36,6 +36,16 @@ from colmap_sfm_utils import create_init_files
 
 gpu_index = '-1'
 
+if 'COLMAP_MVS_FOR_TWO_IMAGES' in os.environ and not int(os.environ['COLMAP_MVS_FOR_TWO_IMAGES'])==0:
+    tri_ignore_two_view_tracks = 0
+else:
+    tri_ignore_two_view_tracks = 1
+
+if 'COLMAP_SFM_MAX_SIFT_MATCHES' in os.environ:
+    sift_matching_max_num_matches = int(os.environ['COLMAP_SFM_MAX_SIFT_MATCHES'])
+else:
+    sift_matching_max_num_matches = 30000
+
 
 def run_sift_matching(img_dir, db_file, camera_model):
     assert(camera_model == 'PINHOLE' or camera_model == 'PERSPECTIVE')
@@ -61,8 +71,8 @@ def run_sift_matching(img_dir, db_file, camera_model):
                                             --SiftMatching.guided_matching 1 \
                                             --SiftMatching.num_threads 6 \
                                             --SiftMatching.max_error 3 \
-                                            --SiftMatching.max_num_matches 30000 \
-                                            --SiftMatching.gpu_index {}'.format(db_file, gpu_index)
+                                            --SiftMatching.max_num_matches {} \
+                                            --SiftMatching.gpu_index {}'.format(db_file, sift_matching_max_num_matches, gpu_index)
 
     run_cmd(cmd)
 
@@ -94,10 +104,11 @@ def run_point_triangulation(img_dir, db_file, out_dir, template_file, tri_merge_
                                              --Mapper.ba_local_max_num_iterations 100 \
                                              --Mapper.ba_global_images_ratio 1.0000001\
                                              --Mapper.ba_global_max_num_iterations 100 \
-                                             --Mapper.tri_ignore_two_view_tracks 1'.format(db_file, img_dir, out_dir, out_dir,
+                                             --Mapper.tri_ignore_two_view_tracks {}'.format(db_file, img_dir, out_dir, out_dir,
                                                                                                tri_merge_max_reproj_error,
                                                                                                tri_complete_max_reproj_error,
-                                                                                               filter_max_reproj_error)
+                                                                                               filter_max_reproj_error,
+                                                                                               tri_ignore_two_view_tracks )
     run_cmd(cmd)
 
 
