@@ -41,6 +41,9 @@ import cv2
 e_resolution = 0.5  # 0.5 meters per pixel
 n_resolution = 0.5 
 
+if 'COLMAP_DSM_RESOLUTION' in os.environ:
+    e_resolution = float(os.environ['COLMAP_DSM_RESOLUTION'])
+    n_resolution = float(os.environ['COLMAP_DSM_RESOLUTION'])
 
 # points is in UTM
 def produce_dsm_from_points(work_dir, points, tif_to_write, jpg_to_write=None):
